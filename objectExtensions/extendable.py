@@ -6,7 +6,7 @@ from .extension import Extension
 
 class Extendable:
     def __init__(self, extensions: Sequence[Type[Extension]] = ()):
-        self.__extensions = []
+        self.__extensions = set()
         self._extension_data = {}  # Intended to temporarily hold metadata - can be modified by extensions
 
         for extension_class in extensions:
@@ -16,7 +16,7 @@ class Extendable:
             if not extension_class.can_extend(self):
                 ErrorMessages.invalid_extension(extension_class)
 
-            self.__extensions.append(extension_class)
+            self.__extensions.add(extension_class)
             extension_class.extend(self)
 
     @property
