@@ -9,7 +9,7 @@ from .extension import Extension
 class Extendable:
     def __init__(self, extensions: Sequence[Type[Extension]] = ()):
         self.__extensions = []
-        self._extension_data = {}
+        self._extension_data = {}  # Intended to temporarily hold metadata - can be modified by extensions
 
         for extension_class in extensions:
             if not issubclass(extension_class, Extension):
