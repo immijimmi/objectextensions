@@ -43,7 +43,7 @@ def res():
 
             Extension.wrap(target_instance, 'append', after=lambda metadata: metadata["self"].increment_append_count())
 
-    return {"extendable": {"hashlist": HashList}, "extension": {"listener": Listener}}
+    return {"hashlist": HashList, "listener": Listener}
 
 
 class TestHashlist:
@@ -57,15 +57,15 @@ class TestHashlist:
             def extend(target_instance):
                 pass
 
-        pytest.raises(ValueError, res["extendable"]["hashlist"], extensions=[Plus])
+        pytest.raises(ValueError, res["hashlist"], extensions=[Plus])
 
     def test_correct_extensions_returned(self, res):
-        instance = res["extendable"]["hashlist"](extensions=[res["extension"]["listener"]])
+        instance = res["hashlist"](extensions=[res["listener"]])
 
-        assert instance.extensions == (res["extension"]["listener"],)
+        assert instance.extensions == (res["listener"],)
 
     def test_listener_increments_counter_on_append(self, res):
-        instance = res["extendable"]["hashlist"](extensions=[res["extension"]["listener"]])
+        instance = res["hashlist"](extensions=[res["listener"]])
 
         assert instance.append_count == 0
 
