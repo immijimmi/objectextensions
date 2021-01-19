@@ -1,4 +1,5 @@
 import pytest
+from inspect import getfullargspec
 
 from objectExtensions import Extendable, Extension
 
@@ -35,13 +36,18 @@ def res():
 
         @staticmethod
         def extend(target_cls):
-            def increment_append_count(self):
-                self.append_count += 1
-
             target_cls.append_count = 0
-            target_cls.increment_append_count = increment_append_count
+            target_cls.increment_append_count = Listener._increment_append_count
 
-            Extension.wrap(target_cls, 'append', after=lambda metadata: metadata["self"].increment_append_count())
+            Extension.wrap(target_cls, 'append', Listener._append_wrapper)
+
+        @staticmethod
+        def _append_wrapper(metadata):
+            yield
+            metadata["self"].increment_append_count()
+
+        def _increment_append_count(self):
+            self.append_count += 1
 
     return {"hashlist": HashList, "listener": Listener}
 
@@ -64,10 +70,17 @@ class TestHashlist:
 
         assert tuple(instance.extensions) == (res["listener"],)
 
-    def test_listener_increments_counter_on_append(self, res):
+    def test_method_correctly_bound(self, res):
         instance = res["hashlist"](extensions=[res["listener"]])
 
         assert instance.append_count == 0
+
+        instance.increment_append_count()
+
+        assert instance.append_count == 1
+
+    def test_listener_increments_counter_on_append(self, res):
+        instance = res["hashlist"](extensions=[res["listener"]])
 
         instance.append(5)
         instance.append(3)
@@ -77,3 +90,28 @@ class TestHashlist:
         instance.index(5)
 
         assert instance.append_count == 2
+
+    def test_wrap_preserves_method_signature(self, res):
+        def dummy_method(self, arg_1, arg_2, kwarg_1=1, kwarg_2=2):
+            pass
+
+        def dummy_wrapper(metadata):
+            yield
+
+        class Plus(Extension):
+            @staticmethod
+            def can_extend(target_instance):
+                return True
+
+            @staticmethod
+            def extend(target_instance):
+                target_instance.method = dummy_method
+                Extension.wrap(target_instance, "method", dummy_wrapper)
+
+        instance = res["hashlist"](extensions=[Plus])
+
+        expected_spec = getfullargspec(dummy_method)
+        actual_spec = getfullargspec(instance.method)
+
+        assert actual_spec is not expected_spec
+        assert actual_spec == expected_spec
