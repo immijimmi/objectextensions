@@ -30,18 +30,18 @@ def res():
 
     class Listener(Extension):
         @staticmethod
-        def can_extend(target_instance):
-            return isinstance(target_instance, HashList)
+        def can_extend(target_cls):
+            return target_cls is HashList
 
         @staticmethod
-        def extend(target_instance):
+        def extend(target_cls):
             def increment_append_count(self):
                 self.append_count += 1
 
-            Extension.set(target_instance, 'append_count', 0)
-            Extension.set(target_instance, 'increment_append_count', increment_append_count)
+            target_cls.append_count = 0
+            target_cls.increment_append_count = increment_append_count
 
-            Extension.wrap(target_instance, 'append', after=lambda metadata: metadata["self"].increment_append_count())
+            Extension.wrap(target_cls, 'append', after=lambda metadata: metadata["self"].increment_append_count())
 
     return {"hashlist": HashList, "listener": Listener}
 
@@ -62,7 +62,7 @@ class TestHashlist:
     def test_correct_extensions_returned(self, res):
         instance = res["hashlist"](extensions=[res["listener"]])
 
-        assert instance.extensions == (res["listener"],)
+        assert tuple(instance.extensions) == (res["listener"],)
 
     def test_listener_increments_counter_on_append(self, res):
         instance = res["hashlist"](extensions=[res["listener"]])
