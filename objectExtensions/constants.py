@@ -19,7 +19,7 @@ class ErrorMessages:
     def wrap_static(property_name):
         raise ValueError(
             ("Static class methods cannot be wrapped. "
-             "The method must receive the object instance as its first argument: {}").format(property_name))
+             "The method must receive the object instance as 'self' for its first argument: {}").format(property_name))
 
     @staticmethod
     def duplicate_attribute(attribute_name):
