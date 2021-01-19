@@ -4,9 +4,9 @@ with open("README.md", "r", encoding="utf-8") as readme_file:
     long_description = readme_file.read()
 
 setup(
-    name="objectExtensions",
+    name="objectextensions",
     packages=[
-        "objectExtensions"
+        "objectextensions"
     ],
     version="1.0.0",
     license="MIT",
@@ -15,7 +15,7 @@ setup(
     long_description=long_description,
     author="immijimmi",
     author_email="imranhamid99@msn.com",
-    url="https://github.com/immijimmi/objectExtensions",
+    url="https://github.com/immijimmi/objectextensions",
     # download_url="",
     keywords=["extensions", "plugins"],
     install_requires=[

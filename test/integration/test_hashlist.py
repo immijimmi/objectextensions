@@ -1,7 +1,7 @@
 import pytest
 from inspect import getfullargspec
 
-from objectExtensions import Extendable, Extension
+from objectextensions import Extendable, Extension
 
 
 @pytest.fixture
