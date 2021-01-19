@@ -21,6 +21,11 @@ def res():
             self.values[item] = self.values.get(item, []) + [len(self.list) - 1]
 
         def index(self, item):
+            """
+            Returns all indexes containing the specified item.
+            Much lower time complexity than a typical list due to dict lookup usage
+            """
+
             if item not in self.values:
                 raise ValueError("{0} is not in hashlist".format(item))
 
