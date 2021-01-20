@@ -8,8 +8,6 @@ from objectextensions import Extendable, Extension
 def res():
     class HashList(Extendable):
         def __init__(self, iterable=(), extensions=()):
-            super().__init__(extensions=extensions)
-
             self.values = {}
             self.list = []
 
@@ -48,7 +46,9 @@ def res():
 
         @staticmethod
         def _append_wrapper(metadata):
-            yield
+            output = yield
+            metadata["result"] = output
+
             metadata["self"].increment_append_count()
 
         def _increment_append_count(self):
