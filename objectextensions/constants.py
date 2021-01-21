@@ -1,11 +1,3 @@
-class Keys:
-    self = "self"
-    extension_data = "extension_data"
-    args = "args"
-    kwargs = "kwargs"
-    result = "result"
-
-
 class ErrorMessages:
     @staticmethod
     def not_extension(extension):

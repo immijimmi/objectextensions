@@ -7,7 +7,7 @@ from objectextensions import Extendable, Extension
 @pytest.fixture
 def res():
     class HashList(Extendable):
-        def __init__(self, iterable=(), extensions=()):
+        def __init__(self, iterable=()):
             self.values = {}
             self.list = []
 
@@ -29,30 +29,28 @@ def res():
 
             return self.values[item]
 
-        def __contains__(self, item):
-            return item in self.values
-
     class Listener(Extension):
         @staticmethod
         def can_extend(target_cls):
-            return target_cls is HashList
+            return issubclass(target_cls, HashList)
 
         @staticmethod
         def extend(target_cls):
-            target_cls.append_count = 0
             target_cls.increment_append_count = Listener._increment_append_count
 
-            Extension.wrap(target_cls, 'append', Listener._append_wrapper)
-
-        @staticmethod
-        def _append_wrapper(metadata):
-            output = yield
-            metadata["result"] = output
-
-            metadata["self"].increment_append_count()
+            Extension.wrap(target_cls, "__init__", Listener._wrap_init)
+            Extension.wrap(target_cls, 'append', Listener._wrap_append)
 
         def _increment_append_count(self):
             self.append_count += 1
+
+        def _wrap_init(self, *args, **kwargs):
+            self.append_count = 0
+            yield
+
+        def _wrap_append(self, *args, **kwargs):
+            yield
+            self.increment_append_count()
 
     return {"hashlist": HashList, "listener": Listener}
 
@@ -68,15 +66,15 @@ class TestHashlist:
             def extend(target_instance):
                 pass
 
-        pytest.raises(ValueError, res["hashlist"], extensions=[Plus])
+        pytest.raises(ValueError, res["hashlist"].with_extensions, Plus)
 
     def test_correct_extensions_returned(self, res):
-        instance = res["hashlist"](extensions=[res["listener"]])
+        instance = res["hashlist"].with_extensions(res["listener"])()
 
-        assert tuple(instance.extensions) == (res["listener"],)
+        assert instance.extensions == frozenset([res["listener"]])
 
     def test_method_correctly_bound(self, res):
-        instance = res["hashlist"](extensions=[res["listener"]])
+        instance = res["hashlist"].with_extensions(res["listener"])()
 
         assert instance.append_count == 0
 
@@ -85,7 +83,7 @@ class TestHashlist:
         assert instance.append_count == 1
 
     def test_listener_increments_counter_on_append(self, res):
-        instance = res["hashlist"](extensions=[res["listener"]])
+        instance = res["hashlist"].with_extensions(res["listener"])()
 
         instance.append(5)
         instance.append(3)
@@ -113,7 +111,7 @@ class TestHashlist:
                 target_instance.method = dummy_method
                 Extension.wrap(target_instance, "method", dummy_wrapper)
 
-        instance = res["hashlist"](extensions=[Plus])
+        instance = res["hashlist"].with_extensions(Plus)()
 
         expected_spec = getfullargspec(dummy_method)
         actual_spec = getfullargspec(instance.method)
