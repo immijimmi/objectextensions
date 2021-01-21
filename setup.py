@@ -16,7 +16,7 @@ setup(
     author="immijimmi",
     author_email="imranhamid99@msn.com",
     url="https://github.com/immijimmi/objectextensions",
-    # download_url="",
+    download_url="https://github.com/immijimmi/objectextensions/archive/v0.1.0.tar.gz",
     keywords=["extensions", "plugins"],
     install_requires=[
         "wrapt>=1.11.2"
