@@ -65,14 +65,51 @@ class Listener(Extension):
 
 ### Instantiation
 ```python
-my_list = HashList.with_extensions(Listener)(iterable=[5,2,4])
+HashListWithListeners = HashList.with_extensions(Listener)
+my_hashlist = HashListWithListeners(iterable=[5,2,4])
+```
+or, for shorthand:
+```python
+my_hashlist = HashList.with_extensions(Listener)(iterable=[5,2,4])
 ```
 
 ### Result
 ```python
->>> my_list.append_count  # Attribute that was added by the Listener extension
+>>> my_hashlist.append_count  # Attribute that was added by the Listener extension
 3
->>> my_list.append(7)  # Listener has wrapped this to increment .append_count
->>> my_list.append_count
+>>> my_hashlist.append(7)  # Listener has wrapped this to increment .append_count
+>>> my_hashlist.append_count
 4
 ```
+
+## Functionality
+
+### Properties
+
+Extendable.**extensions**\
+&nbsp;&nbsp;&nbsp;&nbsp;Returns a reference to a frozenset containing the applied extensions.\
+&nbsp;
+
+### Methods
+
+Extendable.**with_extensions**(*cls, \*extensions: Type[Extension]*)\
+&nbsp;&nbsp;&nbsp;&nbsp;Returns a copy of the class with the provided extensions applied to it.\
+&nbsp;
+
+Extension.**extend**(*target_cls: Extendable*)\
+&nbsp;&nbsp;&nbsp;&nbsp;Abstract staticmethod which must be overridden.\
+&nbsp;&nbsp;&nbsp;&nbsp;Any modification of the target class should take place in this function.\
+&nbsp;
+
+Extension.**can_extend**(*target_cls: Extendable*)\
+&nbsp;&nbsp;&nbsp;&nbsp;Abstract staticmethod which must be overridden.\
+&nbsp;&nbsp;&nbsp;&nbsp;Should return a bool indicating whether this Extension can be applied to the target class.\
+&nbsp;
+
+Extension.**wrap**(*target_cls: Extendable, method_name: str,*\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*gen_func: Callable[[Extendable, Any, Any], Generator[None, Any, None]]*)\
+&nbsp;&nbsp;&nbsp;&nbsp;Used to wrap an existing method on the target class.\
+&nbsp;&nbsp;&nbsp;&nbsp;Passes copies of the method parameters to the generator function provided.\
+&nbsp;&nbsp;&nbsp;&nbsp;The generator function should yield once,\
+&nbsp;&nbsp;&nbsp;&nbsp;with the yield statement receiving a copy of the result of executing the core method.\
+&nbsp;
