@@ -10,7 +10,7 @@ class Extendable:
     @classmethod
     def with_extensions(cls, *extensions: Type[Extension]) -> Type["Extendable"]:
         """
-        Returns a copy of the class with the provided extensions applied to it.
+        Returns a copy of the class with the provided extensions applied to it
         """
 
         def init_wrapper(self, *args, **kwargs):
