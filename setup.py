@@ -8,7 +8,7 @@ setup(
     packages=[
         "objectextensions"
     ],
-    version="1.0.0",
+    version="0.1.0",
     license="MIT",
     description="A basic framework for implementing an extension pattern",
     long_description_content_type="text/markdown",
