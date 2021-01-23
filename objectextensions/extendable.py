@@ -13,7 +13,7 @@ class Extendable:
         Returns a copy of the class with the provided extensions applied to it
         """
 
-        def init_wrapper(self, *args, **kwargs):
+        def wrap_init(self, *args, **kwargs):
             self._extension_data = {}  # Intended to temporarily hold metadata - can be modified by extensions
             yield
 
@@ -21,7 +21,7 @@ class Extendable:
             pass
 
         Extended._extensions = frozenset(extensions)
-        Extension.wrap(Extended, "__init__", init_wrapper)
+        Extension.wrap(Extended, "__init__", wrap_init)
 
         for extension_cls in Extended._extensions:
             if not issubclass(extension_cls, Extension):
