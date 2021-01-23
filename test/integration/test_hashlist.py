@@ -1,4 +1,5 @@
 import pytest
+
 from inspect import getfullargspec
 
 from objectextensions import Extendable, Extension
