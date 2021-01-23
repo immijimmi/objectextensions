@@ -42,16 +42,28 @@ class Extension:
 
         @decorator  # This will preserve the original method signature when wrapping the method
         def wrapper(func, self, args, kwargs):
-            gen = gen_func(self, *deepcopy(args), **deepcopy(kwargs))
+            gen = gen_func(self, *try_copy(args), **try_copy(kwargs))
             next(gen)
 
             result = func(*args, **kwargs)
 
             try:
-                gen.send(deepcopy(result))
+                gen.send(try_copy(result))
             except StopIteration:
                 pass
 
             return result
 
         setattr(target_cls, method_name, wrapper(method))
+
+
+def try_copy(item: Any) -> Any:
+    """
+    A failsafe deepcopy wrapper
+    """
+
+    try:
+        return deepcopy(item)
+
+    except:
+        return item
