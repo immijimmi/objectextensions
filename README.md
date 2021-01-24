@@ -96,17 +96,17 @@ Extendable.**with_extensions**(*cls, \*extensions: Type[Extension]*)\
 &nbsp;&nbsp;&nbsp;&nbsp;Returns a copy of the class with the provided extensions applied to it.\
 &nbsp;
 
-Extension.**extend**(*target_cls: Extendable*)\
+Extension.**extend**(*target_cls: Type[Extendable]*)\
 &nbsp;&nbsp;&nbsp;&nbsp;Abstract staticmethod which must be overridden.\
 &nbsp;&nbsp;&nbsp;&nbsp;Any modification of the target class should take place in this function.\
 &nbsp;
 
-Extension.**can_extend**(*target_cls: Extendable*)\
+Extension.**can_extend**(*target_cls: Type[Extendable]*)\
 &nbsp;&nbsp;&nbsp;&nbsp;Abstract staticmethod which must be overridden.\
 &nbsp;&nbsp;&nbsp;&nbsp;Should return a bool indicating whether this Extension can be applied to the target class.\
 &nbsp;
 
-Extension.**wrap**(*target_cls: Extendable, method_name: str,*\
+Extension.**wrap**(*target_cls: Type[Extendable], method_name: str,*\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*gen_func: Callable[[Extendable, Any, Any], Generator[None, Any, None]]*)\
 &nbsp;&nbsp;&nbsp;&nbsp;Used to wrap an existing method on the target class.\
 &nbsp;&nbsp;&nbsp;&nbsp;Passes copies of the method parameters to the generator function provided.\
