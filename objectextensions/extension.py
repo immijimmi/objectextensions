@@ -2,7 +2,7 @@ from wrapt import decorator
 
 from inspect import getfullargspec
 from copy import deepcopy
-from typing import Generator, Callable, Any
+from typing import Generator, Callable, Any, Union, Type
 
 from .constants import ErrorMessages
 
@@ -55,6 +55,19 @@ class Extension:
             return result
 
         setattr(target_cls, method_name, wrapper(method))
+
+    @staticmethod
+    def set(target: Union["Extendable", Type["Extendable"]], attribute_name: str, value: Any) -> None:
+        """
+        Used to safely add new attributes to an extendable class or instance. In contrast with assigning them directly,
+        this method will raise an error if the attribute already exists (for example, if another extension added it)
+        to ensure compatibility issues are flagged and can be dealt with easily
+        """
+
+        if hasattr(target, attribute_name):
+            ErrorMessages.duplicate_attribute(attribute_name)
+
+        setattr(target, attribute_name, value)
 
 
 def try_copy(item: Any) -> Any:
