@@ -46,7 +46,7 @@ class Listener(Extension):
 
     @staticmethod
     def extend(target_cls):
-        target_cls.increment_append_count = Listener._increment_append_count
+        Extension.set(target_cls, "increment_append_count", Listener._increment_append_count)
 
         Extension.wrap(target_cls, "__init__", Listener._wrap_init)
         Extension.wrap(target_cls, 'append', Listener._wrap_append)
@@ -55,7 +55,7 @@ class Listener(Extension):
         self.append_count += 1
 
     def _wrap_init(self, *args, **kwargs):
-        self.append_count = 0
+        Extension.set(self, "append_count", 0)
         yield
 
     def _wrap_append(self, *args, **kwargs):
