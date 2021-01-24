@@ -9,7 +9,7 @@ from .constants import ErrorMessages
 
 class Extension:
     @staticmethod
-    def extend(target_cls: "Extendable") -> None:
+    def extend(target_cls: Type["Extendable"]) -> None:
         """
         Any modification of the target class should take place in this function
         """
@@ -17,7 +17,7 @@ class Extension:
         raise NotImplementedError
 
     @staticmethod
-    def can_extend(target_cls: "Extendable") -> bool:
+    def can_extend(target_cls: Type["Extendable"]) -> bool:
         """
         Should return a bool indicating whether this Extension can be applied to the target class
         """
@@ -25,7 +25,7 @@ class Extension:
         raise NotImplementedError
 
     @staticmethod
-    def wrap(target_cls: "Extendable", method_name: str,
+    def wrap(target_cls: Type["Extendable"], method_name: str,
              gen_func: Callable[["Extendable", Any, Any], Generator[None, Any, None]]) -> None:
         """
         Used to wrap an existing method on the target class.
@@ -57,7 +57,7 @@ class Extension:
         setattr(target_cls, method_name, wrapper(method))
 
     @staticmethod
-    def set(target: Union["Extendable", Type["Extendable"]], attribute_name: str, value: Any) -> None:
+    def set(target: Union[Type["Extendable"], "Extendable"], attribute_name: str, value: Any) -> None:
         """
         Used to safely add new attributes to an extendable class or instance. In contrast with assigning them directly,
         this method will raise an error if the attribute already exists (for example, if another extension added it)
