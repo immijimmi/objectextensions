@@ -5,7 +5,8 @@ from .extension import Extension
 
 
 class Extendable:
-    _extensions = frozenset()
+    def __init__(self):
+        self._extension_data = {}  # Intended to temporarily hold metadata - can be modified by extensions
 
     @classmethod
     def with_extensions(cls, *extensions: Type[Extension]) -> Type["Extendable"]:
@@ -13,15 +14,10 @@ class Extendable:
         Returns a copy of the class with the provided extensions applied to it
         """
 
-        def wrap_init(self, *args, **kwargs):
-            self._extension_data = {}  # Intended to temporarily hold metadata - can be modified by extensions
-            yield
-
         class Extended(cls):
             pass
 
         Extended._extensions = frozenset(extensions)
-        Extension._wrap(Extended, "__init__", wrap_init)
 
         for extension_cls in Extended._extensions:
             if not issubclass(extension_cls, Extension):

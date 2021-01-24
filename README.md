@@ -14,6 +14,8 @@ from objectextensions import Extendable
 
 class HashList(Extendable):
     def __init__(self, iterable=()):
+        super().__init__()
+
         self.values = {}
         self.list = []
 

@@ -9,6 +9,8 @@ from objectextensions import Extendable, Extension
 def res():
     class HashList(Extendable):
         def __init__(self, iterable=()):
+            super().__init__()
+
             self.values = {}
             self.list = []
 
@@ -137,3 +139,16 @@ class TestHashlist:
         modified_cls = res["hashlist"].with_extensions(res["listener"], Conflict)
 
         pytest.raises(AttributeError, modified_cls)
+
+    def test_extendable_metadata_is_correct(self, res):
+        modified_cls = res["hashlist"].with_extensions(res["listener"])
+        instance = modified_cls()
+
+        assert not hasattr(res["hashlist"], "_extensions")
+        assert not hasattr(res["hashlist"], "_extension_data")
+
+        assert modified_cls._extensions == frozenset([res["listener"]])
+        assert not hasattr(modified_cls, "_extension_data")
+
+        assert instance._extensions == frozenset([res["listener"]])
+        assert instance._extension_data == {}
