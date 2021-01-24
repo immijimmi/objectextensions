@@ -37,7 +37,7 @@ def res():
 
         @staticmethod
         def extend(target_cls):
-            target_cls.increment_append_count = Listener._increment_append_count
+            Extension.set(target_cls, "increment_append_count", Listener._increment_append_count)
 
             Extension.wrap(target_cls, "__init__", Listener._wrap_init)
             Extension.wrap(target_cls, 'append', Listener._wrap_append)
@@ -46,7 +46,7 @@ def res():
             self.append_count += 1
 
         def _wrap_init(self, *args, **kwargs):
-            self.append_count = 0
+            Extension.set(self, "append_count", 0)
             yield
 
         def _wrap_append(self, *args, **kwargs):
@@ -60,11 +60,11 @@ class TestHashlist:
     def test_error_raised_if_can_extend_returns_false(self, res):
         class Plus(Extension):
             @staticmethod
-            def can_extend(target_instance):
+            def can_extend(target_cls):
                 return False
 
             @staticmethod
-            def extend(target_instance):
+            def extend(target_cls):
                 pass
 
         pytest.raises(ValueError, res["hashlist"].with_extensions, Plus)
@@ -99,18 +99,18 @@ class TestHashlist:
         def dummy_method(self, arg_1, arg_2, kwarg_1=1, kwarg_2=2):
             pass
 
-        def dummy_wrapper(metadata):
+        def dummy_wrapper(self, *args, **kwargs):
             yield
 
         class Plus(Extension):
             @staticmethod
-            def can_extend(target_instance):
+            def can_extend(target_cls):
                 return True
 
             @staticmethod
-            def extend(target_instance):
-                target_instance.method = dummy_method
-                Extension.wrap(target_instance, "method", dummy_wrapper)
+            def extend(target_cls):
+                target_cls.method = dummy_method
+                Extension.wrap(target_cls, "method", dummy_wrapper)
 
         instance = res["hashlist"].with_extensions(Plus)()
 
@@ -119,3 +119,21 @@ class TestHashlist:
 
         assert actual_spec is not expected_spec
         assert actual_spec == expected_spec
+
+    def test_set_duplicate_attribute_raises_error(self, res):
+        class Conflict(Extension):
+            @staticmethod
+            def can_extend(target_cls):
+                return True
+
+            @staticmethod
+            def extend(target_cls):
+                Extension.wrap(target_cls, "__init__", Conflict._wrap_init)
+
+            def _wrap_init(self, *args, **kwargs):
+                Extension.set(self, "append_count", "0")
+                yield
+
+        modified_cls = res["hashlist"].with_extensions(res["listener"], Conflict)
+
+        pytest.raises(AttributeError, modified_cls)
