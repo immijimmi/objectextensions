@@ -21,7 +21,7 @@ class Extendable:
             pass
 
         Extended._extensions = frozenset(extensions)
-        Extension.wrap(Extended, "__init__", wrap_init)
+        Extension._wrap(Extended, "__init__", wrap_init)
 
         for extension_cls in Extended._extensions:
             if not issubclass(extension_cls, Extension):

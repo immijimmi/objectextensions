@@ -14,7 +14,7 @@ class Extension:
         Any modification of the target class should take place in this function
         """
 
-        raise NotImplementedError
+        pass
 
     @staticmethod
     def can_extend(target_cls: Type["Extendable"]) -> bool:
@@ -25,8 +25,8 @@ class Extension:
         raise NotImplementedError
 
     @staticmethod
-    def wrap(target_cls: Type["Extendable"], method_name: str,
-             gen_func: Callable[["Extendable", Any, Any], Generator[None, Any, None]]) -> None:
+    def _wrap(target_cls: Type["Extendable"], method_name: str,
+              gen_func: Callable[["Extendable", Any, Any], Generator[None, Any, None]]) -> None:
         """
         Used to wrap an existing method on the target class.
         Passes copies of the method parameters to the generator function provided.
@@ -57,7 +57,7 @@ class Extension:
         setattr(target_cls, method_name, wrapper(method))
 
     @staticmethod
-    def set(target: Union[Type["Extendable"], "Extendable"], attribute_name: str, value: Any) -> None:
+    def _set(target: Union[Type["Extendable"], "Extendable"], attribute_name: str, value: Any) -> None:
         """
         Used to safely add new attributes to an extendable class or instance. In contrast with assigning them directly,
         this method will raise an error if the attribute already exists (for example, if another extension added it)

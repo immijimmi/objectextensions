@@ -37,16 +37,16 @@ def res():
 
         @staticmethod
         def extend(target_cls):
-            Extension.set(target_cls, "increment_append_count", Listener._increment_append_count)
+            Extension._set(target_cls, "increment_append_count", Listener._increment_append_count)
 
-            Extension.wrap(target_cls, "__init__", Listener._wrap_init)
-            Extension.wrap(target_cls, 'append', Listener._wrap_append)
+            Extension._wrap(target_cls, "__init__", Listener._wrap_init)
+            Extension._wrap(target_cls, 'append', Listener._wrap_append)
 
         def _increment_append_count(self):
             self.append_count += 1
 
         def _wrap_init(self, *args, **kwargs):
-            Extension.set(self, "append_count", 0)
+            Extension._set(self, "append_count", 0)
             yield
 
         def _wrap_append(self, *args, **kwargs):
@@ -110,7 +110,7 @@ class TestHashlist:
             @staticmethod
             def extend(target_cls):
                 target_cls.method = dummy_method
-                Extension.wrap(target_cls, "method", dummy_wrapper)
+                Extension._wrap(target_cls, "method", dummy_wrapper)
 
         instance = res["hashlist"].with_extensions(Plus)()
 
@@ -128,10 +128,10 @@ class TestHashlist:
 
             @staticmethod
             def extend(target_cls):
-                Extension.wrap(target_cls, "__init__", Conflict._wrap_init)
+                Extension._wrap(target_cls, "__init__", Conflict._wrap_init)
 
             def _wrap_init(self, *args, **kwargs):
-                Extension.set(self, "append_count", "0")
+                Extension._set(self, "append_count", "0")
                 yield
 
         modified_cls = res["hashlist"].with_extensions(res["listener"], Conflict)
