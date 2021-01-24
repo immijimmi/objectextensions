@@ -9,20 +9,20 @@ from .constants import ErrorMessages
 
 class Extension:
     @staticmethod
-    def extend(target_cls: Type["Extendable"]) -> None:
-        """
-        Any modification of the target class should take place in this function
-        """
-
-        pass
-
-    @staticmethod
     def can_extend(target_cls: Type["Extendable"]) -> bool:
         """
         Should return a bool indicating whether this Extension can be applied to the target class
         """
 
         raise NotImplementedError
+
+    @staticmethod
+    def extend(target_cls: Type["Extendable"]) -> None:
+        """
+        Any modification of the target class should take place in this function
+        """
+
+        pass
 
     @staticmethod
     def _wrap(target_cls: Type["Extendable"], method_name: str,
