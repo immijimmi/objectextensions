@@ -121,3 +121,8 @@ Extension.**\_set**(*target: Union[Type[Extendable], Extendable], attribute_name
 &nbsp;&nbsp;&nbsp;&nbsp;this method will raise an error if the attribute already exists (for example, if another extension added it)\
 &nbsp;&nbsp;&nbsp;&nbsp;to ensure compatibility issues are flagged and can be dealt with easily.\
 &nbsp;
+
+## Additional Info
+
+- As extensions do not properly invoke name mangling, adding private members via extensions is discouraged; doing so may lead to unintended behaviour.
+Using protected members instead is encouraged, as name mangling does not come into play in this case.
