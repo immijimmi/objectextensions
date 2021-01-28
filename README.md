@@ -88,38 +88,38 @@ my_hashlist = HashList.with_extensions(Listener)(iterable=[5,2,4])
 
 ### Properties
 
-Extendable.**extensions**\
-&nbsp;&nbsp;&nbsp;&nbsp;Returns a reference to a frozenset containing the applied extensions.\
+Extendable.**extensions**  
+&nbsp;&nbsp;&nbsp;&nbsp;Returns a reference to a frozenset containing the applied extensions.  
 &nbsp;
 
 ### Methods
 
-Extendable.**with_extensions**(*cls, \*extensions: Type[Extension]*)\
-&nbsp;&nbsp;&nbsp;&nbsp;Returns a copy of the class with the provided extensions applied to it.\
+Extendable.**with_extensions**(*cls, \*extensions: Type[Extension]*)  
+&nbsp;&nbsp;&nbsp;&nbsp;Returns a copy of the class with the provided extensions applied to it.  
 &nbsp;
 
-Extension.**can_extend**(*target_cls: Type[Extendable]*)\
-&nbsp;&nbsp;&nbsp;&nbsp;Abstract staticmethod which must be overridden.\
-&nbsp;&nbsp;&nbsp;&nbsp;Should return a bool indicating whether this Extension can be applied to the target class.\
+Extension.**can_extend**(*target_cls: Type[Extendable]*)  
+&nbsp;&nbsp;&nbsp;&nbsp;Abstract staticmethod which must be overridden.  
+&nbsp;&nbsp;&nbsp;&nbsp;Should return a bool indicating whether this Extension can be applied to the target class.  
 &nbsp;
 
-Extension.**extend**(*target_cls: Type[Extendable]*)\
-&nbsp;&nbsp;&nbsp;&nbsp;Abstract staticmethod which can be overridden.\
-&nbsp;&nbsp;&nbsp;&nbsp;Any modification of the target **class** should take place in this function.\
+Extension.**extend**(*target_cls: Type[Extendable]*)  
+&nbsp;&nbsp;&nbsp;&nbsp;Abstract staticmethod which can be overridden.  
+&nbsp;&nbsp;&nbsp;&nbsp;Any modification of the target **class** should take place in this function.  
 &nbsp;
 
-Extension.**\_wrap**(*target_cls: Type[Extendable], method_name: str,*\
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*gen_func: Callable[[Extendable, Any, Any], Generator[None, Any, None]]*)\
-&nbsp;&nbsp;&nbsp;&nbsp;Used to wrap an existing method on the target class.\
-&nbsp;&nbsp;&nbsp;&nbsp;Passes copies of the method parameters to the generator function provided.\
-&nbsp;&nbsp;&nbsp;&nbsp;The generator function should yield once,\
-&nbsp;&nbsp;&nbsp;&nbsp;with the yield statement receiving a copy of the result of executing the core method.\
+Extension.**\_wrap**(*target_cls: Type[Extendable], method_name: str,*  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*gen_func: Callable[[Extendable, Any, Any], Generator[None, Any, None]]*)  
+&nbsp;&nbsp;&nbsp;&nbsp;Used to wrap an existing method on the target class.  
+&nbsp;&nbsp;&nbsp;&nbsp;Passes copies of the method parameters to the generator function provided.  
+&nbsp;&nbsp;&nbsp;&nbsp;The generator function should yield once,  
+&nbsp;&nbsp;&nbsp;&nbsp;with the yield statement receiving a copy of the result of executing the core method.  
 &nbsp;
 
-Extension.**\_set**(*target: Union[Type[Extendable], Extendable], attribute_name: str, value: Any*)\
-&nbsp;&nbsp;&nbsp;&nbsp;Used to safely add new attributes to an extendable class or instance. In contrast with assigning them directly,\
-&nbsp;&nbsp;&nbsp;&nbsp;this method will raise an error if the attribute already exists (for example, if another extension added it)\
-&nbsp;&nbsp;&nbsp;&nbsp;to ensure compatibility issues are flagged and can be dealt with easily.\
+Extension.**\_set**(*target: Union[Type[Extendable], Extendable], attribute_name: str, value: Any*)  
+&nbsp;&nbsp;&nbsp;&nbsp;Used to safely add new attributes to an extendable class or instance. In contrast with assigning them directly,  
+&nbsp;&nbsp;&nbsp;&nbsp;this method will raise an error if the attribute already exists (for example, if another extension added it)  
+&nbsp;&nbsp;&nbsp;&nbsp;to ensure compatibility issues are flagged and can be dealt with easily.  
 &nbsp;
 
 ## Additional Info
