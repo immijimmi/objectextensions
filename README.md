@@ -6,7 +6,7 @@
 
 The point of this framework is to provide a more modular alternative to object inheritance.
 
-Consider the following use case; You have an abstract class `Car` intended to represent a car, and need a pattern that allows you to *optionally* add more features.
+**Consider the following use case:** You have an abstract class `Car` intended to represent a car, and need a pattern that allows you to *optionally* add more features.
 For example, you may want to add a convertible roof or a touchscreen on the dashboard, but these features will not necessarily be added to every subclass of `Car` you create.
 
 Applying standard OOP here means you would need to make a subclass every time a new combination of these optional features is needed.
@@ -15,12 +15,12 @@ the amount of possible combinations skyrockets. This is not a scalable solution 
 
 Object Extensions is an elegant way to handle scenarios such as this one. Rather than creating a new subclass for each possible combination,
 you create one extension representing each feature. When you need to create a car with a particular set of features,
-you take the parent class and pass it the exact set of features you need via the `.with_extensions()` method as the need arises.
+you take the parent class and pass it the exact set of extensions you want to apply via the `.with_extensions()` method as the need arises.
 
 Note that this pattern is intended to be used alongside inheritance, not to replace it entirely. The two can be mixed without issue, such that
 (for example) a subclass could extend a parent class that has pre-applied extensions like so:
 ```python
-class C(A.with_extensions(B)):
+class SpecificCarModel(Car.with_extensions(TouchscreenDash)):
     pass
 ```
 
