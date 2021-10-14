@@ -2,6 +2,28 @@
 
 ###### A basic framework for implementing an extension pattern
 
+## Summary
+
+The point of this library is to provide a more modular alternative to object inheritance.
+
+Consider the following use case; You have an abstract class `Car` intended to represent a car, and need a pattern that allows you to *optionally* add more features.
+For example, you may want to add a convertible roof or a touchscreen on the dashboard, but these features will not necessarily be added to every subclass of `Car` you create.
+
+Applying standard OOP here means you would need to make a subclass every time a new combination of these optional features is needed.
+In the above case, you may need one subclass for a car with a convertible roof, one subclass for a car with a touchscreen, and one that has both features. As the amount of optional features increases,
+the amount of possible combinations skyrockets. This is not a scalable solution to the problem.
+
+Object Extensions is an elegant way to handle scenarios such as this one. Rather than creating a new subclass for each possible combination,
+you create one extension representing each feature. When you need to create a car with a particular set of features,
+you take the parent class and pass it the exact set of features you need via the `.with_extensions()` method as the need arises.
+
+Note that this pattern is intended to be used alongside inheritance, not to replace it entirely. The two can be mixed without issue, such that
+(for example) a subclass could extend a parent class that has pre-applied extensions like so:
+```python
+class C(A.with_extensions(B)):
+    pass
+```
+
 ## Quickstart
 
 ### Setup
@@ -13,6 +35,11 @@ from objectextensions import Extendable
 
 
 class HashList(Extendable):
+    """
+    A basic example class with some data and methods.
+    Inheriting Extendable allows this class to be modified with extensions
+    """
+
     def __init__(self, iterable=()):
         super().__init__()
 
@@ -29,7 +56,7 @@ class HashList(Extendable):
     def index(self, item):
         """
         Returns all indexes containing the specified item.
-        Much lower time complexity than a typical list due to dict lookup usage
+        Much lower time complexity than in a typical list due to dict lookup usage
         """
 
         if item not in self.values:
@@ -42,25 +69,30 @@ from objectextensions import Extension
 
 
 class Listener(Extension):
+    """
+    This extension class is written to apply a counter to the HashList class,
+    which increments any time .append() is called
+    """
+
     @staticmethod
     def can_extend(target_cls):
         return issubclass(target_cls, HashList)
 
     @staticmethod
     def extend(target_cls):
-        Extension._set(target_cls, "increment_append_count", Listener._increment_append_count)
+        Extension._set(target_cls, "increment_append_count", Listener.__increment_append_count)
 
-        Extension._wrap(target_cls, "__init__", Listener._wrap_init)
-        Extension._wrap(target_cls, 'append', Listener._wrap_append)
+        Extension._wrap(target_cls, "__init__", Listener.__wrap_init)
+        Extension._wrap(target_cls, 'append', Listener.__wrap_append)
 
-    def _increment_append_count(self):
+    def __increment_append_count(self):
         self.append_count += 1
 
-    def _wrap_init(self, *args, **kwargs):
+    def __wrap_init(self, *args, **kwargs):
         Extension._set(self, "append_count", 0)
         yield
 
-    def _wrap_append(self, *args, **kwargs):
+    def __wrap_append(self, *args, **kwargs):
         yield
         self.increment_append_count()
 ```
@@ -89,7 +121,7 @@ my_hashlist = HashList.with_extensions(Listener)(iterable=[5,2,4])
 ### Properties
 
 Extendable.**extensions**  
-&nbsp;&nbsp;&nbsp;&nbsp;Returns a reference to a frozenset containing the applied extensions.  
+&nbsp;&nbsp;&nbsp;&nbsp;Returns a reference to a frozenset containing any applied extensions.  
 &nbsp;
 
 ### Methods
@@ -109,7 +141,7 @@ Extension.**extend**(*target_cls: Type[Extendable]*)
 &nbsp;
 
 Extension.**\_wrap**(*target_cls: Type[Extendable], method_name: str,*  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*gen_func: Callable[[Extendable, Any, Any], Generator[None, Any, None]]*)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*gen_func: Callable[[Extendable, Any, Any], Generator[None, Any, None]]*)  
 &nbsp;&nbsp;&nbsp;&nbsp;Used to wrap an existing method on the target class.  
 &nbsp;&nbsp;&nbsp;&nbsp;Passes copies of the method parameters to the generator function provided.  
 &nbsp;&nbsp;&nbsp;&nbsp;The generator function should yield once,  
