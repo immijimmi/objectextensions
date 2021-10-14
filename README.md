@@ -4,7 +4,7 @@
 
 ## Summary
 
-The point of this library is to provide a more modular alternative to object inheritance.
+The point of this framework is to provide a more modular alternative to object inheritance.
 
 Consider the following use case; You have an abstract class `Car` intended to represent a car, and need a pattern that allows you to *optionally* add more features.
 For example, you may want to add a convertible roof or a touchscreen on the dashboard, but these features will not necessarily be added to every subclass of `Car` you create.
@@ -111,7 +111,7 @@ my_hashlist = HashList.with_extensions(Listener)(iterable=[5,2,4])
 ```python
 >>> my_hashlist.append_count  # Attribute that was added by the Listener extension
 3
->>> my_hashlist.append(7)  # Listener has wrapped this to increment .append_count
+>>> my_hashlist.append(7)  # Listener has wrapped this method with logic which increments .append_count
 >>> my_hashlist.append_count
 4
 ```
