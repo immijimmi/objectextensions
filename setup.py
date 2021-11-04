@@ -19,7 +19,7 @@ setup(
     download_url="https://github.com/immijimmi/objectextensions/archive/refs/tags/v0.2.2.tar.gz",
     keywords=["extensions", "plugins"],
     install_requires=[
-        "wrapt>=1.11.2"
+        "wrapt==1.11.2"
     ],
     classifiers=[
         "Development Status :: 4 - Beta",
