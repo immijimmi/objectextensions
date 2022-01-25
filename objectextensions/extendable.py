@@ -2,11 +2,24 @@ from typing import Type, FrozenSet
 
 from .constants import ErrorMessages
 from .extension import Extension
+from .methods import Methods
 
 
 class Extendable:
     def __init__(self):
         self._extension_data = {}  # Intended to temporarily hold metadata - can be modified by extensions
+
+    @property
+    def extensions(self) -> FrozenSet[Type[Extension]]:
+        return self._extensions
+
+    @property
+    def extension_data(self) -> dict:
+        """
+        Returns a snapshot of the instance's extension data
+        """
+
+        return Methods.try_copy(self._extension_data)
 
     @classmethod
     def with_extensions(cls, *extensions: Type[Extension]) -> Type["Extendable"]:
@@ -29,7 +42,3 @@ class Extendable:
             extension_cls.extend(Extended)
 
         return Extended
-
-    @property
-    def extensions(self) -> FrozenSet[Type[Extension]]:
-        return self._extensions
