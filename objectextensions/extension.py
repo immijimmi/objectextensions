@@ -1,10 +1,10 @@
 from wrapt import decorator
 
 from inspect import getfullargspec
-from copy import deepcopy
 from typing import Generator, Callable, Any, Union, Type
 
 from .constants import ErrorMessages
+from .methods import Methods
 
 
 class Extension:
@@ -42,13 +42,13 @@ class Extension:
 
         @decorator  # This will preserve the original method signature when wrapping the method
         def wrapper(func, self, args, kwargs):
-            gen = gen_func(self, *try_copy(args), **try_copy(kwargs))
+            gen = gen_func(self, *Methods.try_copy(args), **Methods.try_copy(kwargs))
             next(gen)
 
             result = func(*args, **kwargs)
 
             try:
-                gen.send(try_copy(result))
+                gen.send(Methods.try_copy(result))
             except StopIteration:
                 pass
 
@@ -68,15 +68,3 @@ class Extension:
             ErrorMessages.duplicate_attribute(attribute_name)
 
         setattr(target, attribute_name, value)
-
-
-def try_copy(item: Any) -> Any:
-    """
-    A failsafe deepcopy wrapper
-    """
-
-    try:
-        return deepcopy(item)
-
-    except:
-        return item
