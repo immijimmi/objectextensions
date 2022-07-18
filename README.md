@@ -141,7 +141,7 @@ Extension.**extend**(*target_cls: Type[Extendable]*)
 &nbsp;
 
 Extension.**\_wrap**(*target_cls: Type[Extendable], method_name: str,*  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*gen_func: Callable[[Extendable, Any, Any], Generator[None, Any, None]]*)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*gen_func: Callable[[Extendable, ...], Generator[None, Any, None]]*)  
 &nbsp;&nbsp;&nbsp;&nbsp;Used to wrap an existing method on the target class.  
 &nbsp;&nbsp;&nbsp;&nbsp;Passes copies of the method parameters to the generator function provided.  
 &nbsp;&nbsp;&nbsp;&nbsp;The generator function should yield once,  
