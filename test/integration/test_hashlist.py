@@ -49,9 +49,6 @@ def listener_cls(hashlist_cls):
             Extension._wrap(target_cls, "__init__", Listener.__wrap_init)
             Extension._wrap(target_cls, 'append', Listener.__wrap_append)
 
-        def __increment_append_count(self):
-            self.append_count += 1
-
         def __wrap_init(self, *args, **kwargs):
             Extension._set(self, "append_count", 0)
             yield
@@ -59,6 +56,9 @@ def listener_cls(hashlist_cls):
         def __wrap_append(self, *args, **kwargs):
             yield
             self.increment_append_count()
+
+        def __increment_append_count(self):
+            self.append_count += 1
 
     return Listener
 
