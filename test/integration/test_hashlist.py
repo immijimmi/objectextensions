@@ -44,19 +44,19 @@ def listener_cls(hashlist_cls):
 
         @staticmethod
         def extend(target_cls):
-            Extension._set(target_cls, "increment_append_count", Listener._increment_append_count)
+            Extension._set(target_cls, "increment_append_count", Listener.__increment_append_count)
 
-            Extension._wrap(target_cls, "__init__", Listener._wrap_init)
-            Extension._wrap(target_cls, 'append', Listener._wrap_append)
+            Extension._wrap(target_cls, "__init__", Listener.__wrap_init)
+            Extension._wrap(target_cls, 'append', Listener.__wrap_append)
 
-        def _increment_append_count(self):
+        def __increment_append_count(self):
             self.append_count += 1
 
-        def _wrap_init(self, *args, **kwargs):
+        def __wrap_init(self, *args, **kwargs):
             Extension._set(self, "append_count", 0)
             yield
 
-        def _wrap_append(self, *args, **kwargs):
+        def __wrap_append(self, *args, **kwargs):
             yield
             self.increment_append_count()
 
@@ -72,25 +72,25 @@ def additional_properties_cls(hashlist_cls):
 
         @staticmethod
         def extend(target_cls):
-            Extension._set_property(target_cls, "unrelated_number", AdditionalProperties._unrelated_number)
+            Extension._set_property(target_cls, "unrelated_number", AdditionalProperties.__unrelated_number)
             Extension._set_setter(
                 target_cls, "unrelated_number", "unrelated_number",
-                AdditionalProperties._set_unrelated_number
+                AdditionalProperties.__set_unrelated_number
             )
 
-            Extension._wrap(target_cls, "__init__", AdditionalProperties._wrap_init)
+            Extension._wrap(target_cls, "__init__", AdditionalProperties.__wrap_init)
 
         @staticmethod
-        def _wrap_init(self, *args, **kwargs):
+        def __wrap_init(self, *args, **kwargs):
             Extension._set(self, "_unrelated_number", 0)
             yield
 
         @staticmethod
-        def _unrelated_number(self):
+        def __unrelated_number(self):
             return self._unrelated_number
 
         @staticmethod
-        def _set_unrelated_number(self, value: float):
+        def __set_unrelated_number(self, value: float):
             self._unrelated_number = value
 
     return AdditionalProperties
@@ -168,9 +168,9 @@ class TestHashlist:
 
             @staticmethod
             def extend(target_cls):
-                Extension._wrap(target_cls, "__init__", Conflict._wrap_init)
+                Extension._wrap(target_cls, "__init__", Conflict.__wrap_init)
 
-            def _wrap_init(self, *args, **kwargs):
+            def __wrap_init(self, *args, **kwargs):
                 Extension._set(self, "append_count", "0")
                 yield
 
