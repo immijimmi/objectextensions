@@ -2,12 +2,13 @@ from wrapt import decorator
 
 from inspect import getfullargspec
 from typing import Generator, Callable, Any, Union, Type
+from abc import ABC
 
 from .constants import ErrorMessages
 from .methods import Methods
 
 
-class Extension:
+class Extension(ABC):
     @staticmethod
     def can_extend(target_cls: Type["Extendable"]) -> bool:
         """
@@ -22,11 +23,11 @@ class Extension:
         Any modification of the target class should take place in this function
         """
 
-        pass
+        raise NotImplementedError
 
     @staticmethod
     def _wrap(target_cls: Type["Extendable"], method_name: str,
-              gen_func: Callable[["Extendable", ...], Generator[None, Any, None]]) -> None:
+              gen_func: Callable[..., Generator[None, Any, None]]) -> None:
         """
         Used to wrap an existing method on the target class.
         Passes copies of the method parameters to the generator function provided.
@@ -59,7 +60,9 @@ class Extension:
     @staticmethod
     def _set(target: Union[Type["Extendable"], "Extendable"], attribute_name: str, value: Any) -> None:
         """
-        Used to safely add a new attribute to an extendable class or instance.
+        Used to safely add a new attribute to an extendable class.
+        Note: It is possible but not recommended to modify an instance rather than a class using this method.
+
         Will raise an error if the attribute already exists (for example, if another extension has already added it)
         to ensure compatibility issues are flagged and can be dealt with easily
         """
@@ -75,12 +78,15 @@ class Extension:
             value: Callable[["Extendable"], Any]
     ) -> None:
         """
-        Used to safely add a new property to an extendable class or instance.
+        Used to safely add a new property to an extendable class.
+        Note: It is possible but not recommended to modify an instance rather than a class using this method.
+
         Will raise an error if the attribute already exists (for example, if another extension has already added it)
         to ensure compatibility issues are flagged and can be dealt with easily
         """
 
         Extension._set(target, property_name, value)
+
         setattr(
             target, property_name,
             property(getattr(target, property_name))
@@ -92,13 +98,19 @@ class Extension:
             value: Callable[["Extendable", Any], Any]
     ) -> None:
         """
-        Used to safely add a new setter to an extendable class or instance.
-        Will raise an error if the attribute already exists (for example, if another extension has already added it)
-        to ensure compatibility issues are flagged and can be dealt with easily
+        Used to safely add a new setter to an extendable class.
+        Note: It is possible but not recommended to modify an instance rather than a class using this method.
+
+        If the property this setter is paired with does not use the same attribute name,
+        and the setter's name already exists on the class (for example, if another extension has already added it),
+        an error will be raised.
+        This is to ensure compatibility issues are flagged and can be dealt with easily
         """
 
-        Extension._set(target, setter_name, value)
+        if (not setter_name == linked_property_name) and hasattr(target, setter_name):
+            ErrorMessages.duplicate_attribute(setter_name)
+
         setattr(
             target, setter_name,
-            getattr(target, linked_property_name).setter(getattr(target, setter_name))
+            getattr(target, linked_property_name).setter(value)
         )

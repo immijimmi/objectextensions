@@ -63,6 +63,39 @@ def listener_cls(hashlist_cls):
     return Listener
 
 
+@pytest.fixture
+def additional_properties_cls(hashlist_cls):
+    class AdditionalProperties(Extension):
+        @staticmethod
+        def can_extend(target_cls):
+            return issubclass(target_cls, hashlist_cls)
+
+        @staticmethod
+        def extend(target_cls):
+            Extension._set_property(target_cls, "unrelated_number", AdditionalProperties._unrelated_number)
+            Extension._set_setter(
+                target_cls, "unrelated_number", "unrelated_number",
+                AdditionalProperties._set_unrelated_number
+            )
+
+            Extension._wrap(target_cls, "__init__", AdditionalProperties._wrap_init)
+
+        @staticmethod
+        def _wrap_init(self, *args, **kwargs):
+            Extension._set(self, "_unrelated_number", 0)
+            yield
+
+        @staticmethod
+        def _unrelated_number(self):
+            return self._unrelated_number
+
+        @staticmethod
+        def _set_unrelated_number(self, value: float):
+            self._unrelated_number = value
+
+    return AdditionalProperties
+
+
 class TestHashlist:
     def test_error_raised_if_can_extend_returns_false(self, hashlist_cls):
         class Plus(Extension):
@@ -149,7 +182,7 @@ class TestHashlist:
         modified_cls = hashlist_cls.with_extensions(listener_cls)
         instance = modified_cls()
 
-        assert not hasattr(hashlist_cls, "_extensions")
+        assert hashlist_cls._extensions == frozenset()
         assert not hasattr(hashlist_cls, "_extension_data")
 
         assert modified_cls._extensions == frozenset([listener_cls])
@@ -157,3 +190,18 @@ class TestHashlist:
 
         assert instance._extensions == frozenset([listener_cls])
         assert instance._extension_data == {}
+
+    def test_property_returns_correct_value(self, hashlist_cls, additional_properties_cls):
+        modified_cls = hashlist_cls.with_extensions(additional_properties_cls)
+        instance = modified_cls()
+
+        assert instance.unrelated_number == 0
+
+    def test_setter_sets_correct_value(self, hashlist_cls, additional_properties_cls):
+        modified_cls = hashlist_cls.with_extensions(additional_properties_cls)
+        instance = modified_cls()
+
+        instance.unrelated_number = 2
+
+        assert instance._unrelated_number == 2
+        assert instance.unrelated_number == 2

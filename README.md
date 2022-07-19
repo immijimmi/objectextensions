@@ -127,7 +127,7 @@ Extendable.**extensions**
 ### Methods
 
 Extendable.**with_extensions**(*cls, \*extensions: Type[Extension]*)  
-&nbsp;&nbsp;&nbsp;&nbsp;Returns a copy of the class with the provided extensions applied to it.  
+&nbsp;&nbsp;&nbsp;&nbsp;Returns the class with the provided extensions applied to it.  
 &nbsp;
 
 Extension.**can_extend**(*target_cls: Type[Extendable]*)  
@@ -136,12 +136,12 @@ Extension.**can_extend**(*target_cls: Type[Extendable]*)
 &nbsp;
 
 Extension.**extend**(*target_cls: Type[Extendable]*)  
-&nbsp;&nbsp;&nbsp;&nbsp;Abstract staticmethod which can be overridden.  
-&nbsp;&nbsp;&nbsp;&nbsp;Any modification of the target **class** should take place in this function.  
+&nbsp;&nbsp;&nbsp;&nbsp;Abstract staticmethod which must be overridden.  
+&nbsp;&nbsp;&nbsp;&nbsp;Any modification of the target class should take place in this function.  
 &nbsp;
 
 Extension.**\_wrap**(*target_cls: Type[Extendable], method_name: str,*  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*gen_func: Callable[[Extendable, ...], Generator[None, Any, None]]*)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*gen_func: Callable[..., Generator[None, Any, None]]*)  
 &nbsp;&nbsp;&nbsp;&nbsp;Used to wrap an existing method on the target class.  
 &nbsp;&nbsp;&nbsp;&nbsp;Passes copies of the method parameters to the generator function provided.  
 &nbsp;&nbsp;&nbsp;&nbsp;The generator function should yield once,  
@@ -149,9 +149,29 @@ Extension.**\_wrap**(*target_cls: Type[Extendable], method_name: str,*
 &nbsp;
 
 Extension.**\_set**(*target: Union[Type[Extendable], Extendable], attribute_name: str, value: Any*)  
-&nbsp;&nbsp;&nbsp;&nbsp;Used to safely add new attributes to an extendable class or instance. In contrast with assigning them directly,  
-&nbsp;&nbsp;&nbsp;&nbsp;this method will raise an error if the attribute already exists (for example, if another extension added it)  
-&nbsp;&nbsp;&nbsp;&nbsp;to ensure compatibility issues are flagged and can be dealt with easily.  
+&nbsp;&nbsp;&nbsp;&nbsp;Used to safely add a new attribute to an extendable class.  
+
+*Note: It is possible but not recommended to modify an instance rather than a class using this method.*  
+&nbsp;&nbsp;&nbsp;&nbsp;*Will raise an error if the attribute already exists (for example, if another extension has already added it)*  
+&nbsp;&nbsp;&nbsp;&nbsp;*to ensure compatibility issues are flagged and can be dealt with easily.*  
+&nbsp;
+
+Extension.**\_set_property**(*target: Union[Type[Extendable], Extendable], property_name: str, value: Callable[[Extendable], Any]*)  
+&nbsp;&nbsp;&nbsp;&nbsp;Used to safely add a new property to an extendable class.  
+
+*Note: It is possible but not recommended to modify an instance rather than a class using this method.*  
+&nbsp;&nbsp;&nbsp;&nbsp;*Will raise an error if the attribute already exists (for example, if another extension has already added it)*  
+&nbsp;&nbsp;&nbsp;&nbsp;*to ensure compatibility issues are flagged and can be dealt with easily.*  
+&nbsp;
+
+Extension.**\_set_setter**(*target: Union[Type[Extendable], Extendable], setter_name: str, linked_property_name: str,*  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*value: Callable[[Extendable, Any], Any]*)  
+&nbsp;&nbsp;&nbsp;&nbsp;Used to safely add a new setter to an extendable class.  
+
+*Note: It is possible but not recommended to modify an instance rather than a class using this method.*  
+&nbsp;&nbsp;&nbsp;&nbsp;*If the property this setter is paired with does not use the same attribute name,*  
+&nbsp;&nbsp;&nbsp;&nbsp;*and the setter's name already exists on the class (for example, if another extension has already added it),*  
+&nbsp;&nbsp;&nbsp;&nbsp;*an error will be raised. This is to ensure compatibility issues are flagged and can be dealt with easily.*  
 &nbsp;
 
 ## Additional Info

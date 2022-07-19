@@ -1,11 +1,14 @@
 from typing import Type, FrozenSet
+from abc import ABC
 
 from .constants import ErrorMessages
 from .extension import Extension
 from .methods import Methods
 
 
-class Extendable:
+class Extendable(ABC):
+    _extensions = frozenset()
+
     def __init__(self):
         self._extension_data = {}  # Intended to temporarily hold metadata - can be modified by extensions
 
@@ -24,7 +27,7 @@ class Extendable:
     @classmethod
     def with_extensions(cls, *extensions: Type[Extension]) -> Type["Extendable"]:
         """
-        Returns a copy of the class with the provided extensions applied to it
+        Returns the class with the provided extensions applied to it
         """
 
         class Extended(cls):
