@@ -19,7 +19,9 @@ class Extendable(ABC):
     @property
     def extension_data(self) -> dict:
         """
-        Returns a snapshot of the instance's extension data
+        Returns a snapshot of the instance's extension data.
+        This is intended to hold metadata optionally provided by extensions for the sake of introspection,
+        and for communication between extensions
         """
 
         return Methods.try_copy(self._extension_data)

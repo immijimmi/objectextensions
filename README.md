@@ -124,6 +124,12 @@ Extendable.**extensions**
 &nbsp;&nbsp;&nbsp;&nbsp;Returns a reference to a frozenset containing any applied extensions.  
 &nbsp;
 
+Extendable.**extension_data**  
+&nbsp;&nbsp;&nbsp;&nbsp;Returns a snapshot of the instance's extension data.  
+&nbsp;&nbsp;&nbsp;&nbsp;This is intended to hold metadata optionally provided by extensions for the sake of introspection,  
+&nbsp;&nbsp;&nbsp;&nbsp;and for communication between extensions.  
+&nbsp;
+
 ### Methods
 
 Extendable.**with_extensions**(*cls, \*extensions: Type[Extension]*)  
