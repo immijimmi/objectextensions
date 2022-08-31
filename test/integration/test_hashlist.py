@@ -107,7 +107,7 @@ class TestHashlist:
             def extend(target_cls):
                 pass
 
-        pytest.raises(ValueError, hashlist_cls.with_extensions, Plus)
+        assert pytest.raises(ValueError, hashlist_cls.with_extensions, Plus)
 
     def test_correct_extensions_returned(self, hashlist_cls, listener_cls):
         instance = hashlist_cls.with_extensions(listener_cls)()
@@ -176,7 +176,7 @@ class TestHashlist:
 
         modified_cls = hashlist_cls.with_extensions(listener_cls, Conflict)
 
-        pytest.raises(AttributeError, modified_cls)
+        assert pytest.raises(AttributeError, modified_cls)
 
     def test_extendable_metadata_is_correct(self, hashlist_cls, listener_cls):
         modified_cls = hashlist_cls.with_extensions(listener_cls)
