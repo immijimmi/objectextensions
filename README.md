@@ -60,7 +60,7 @@ class HashList(Extendable):
         """
 
         if item not in self.values:
-            raise ValueError("{0} is not in hashlist".format(item))
+            raise ValueError(f"{item} is not in hashlist")
 
         return self.values[item]
 ```
@@ -121,7 +121,7 @@ my_hashlist = HashList.with_extensions(Listener)(iterable=[5,2,4])
 ### Properties
 
 Extendable.**extensions**  
-&nbsp;&nbsp;&nbsp;&nbsp;Returns a reference to a frozenset containing any applied extensions.  
+&nbsp;&nbsp;&nbsp;&nbsp;Returns a reference to a tuple containing any applied extensions.  
 &nbsp;
 
 Extendable.**extension_data**  
@@ -133,7 +133,7 @@ Extendable.**extension_data**
 ### Methods
 
 Extendable.**with_extensions**(*cls, \*extensions: Type[Extension]*)  
-&nbsp;&nbsp;&nbsp;&nbsp;Returns the class with the provided extensions applied to it.  
+&nbsp;&nbsp;&nbsp;&nbsp;Returns a subclass with the provided extensions applied to it.  
 &nbsp;
 
 Extension.**can_extend**(*target_cls: Type[Extendable]*)  

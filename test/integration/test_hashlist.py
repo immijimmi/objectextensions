@@ -96,6 +96,20 @@ def additional_properties_cls(hashlist_cls):
     return AdditionalProperties
 
 
+@pytest.fixture
+def spare_cls():
+    class Spare(Extension):
+        @staticmethod
+        def can_extend(target_cls):
+            return True
+
+        @staticmethod
+        def extend(target_cls):
+            pass
+
+    return Spare
+
+
 class TestHashlist:
     def test_error_raised_if_can_extend_returns_false(self, hashlist_cls):
         class Plus(Extension):
@@ -112,7 +126,7 @@ class TestHashlist:
     def test_correct_extensions_returned(self, hashlist_cls, listener_cls):
         instance = hashlist_cls.with_extensions(listener_cls)()
 
-        assert instance.extensions == frozenset([listener_cls])
+        assert instance.extensions == (listener_cls,)
 
     def test_method_correctly_bound(self, hashlist_cls, listener_cls):
         instance = hashlist_cls.with_extensions(listener_cls)()
@@ -182,13 +196,13 @@ class TestHashlist:
         modified_cls = hashlist_cls.with_extensions(listener_cls)
         instance = modified_cls()
 
-        assert hashlist_cls._extensions == frozenset()
+        assert hashlist_cls._extensions == ()
         assert not hasattr(hashlist_cls, "_extension_data")
 
-        assert modified_cls._extensions == frozenset([listener_cls])
+        assert modified_cls._extensions == (listener_cls,)
         assert not hasattr(modified_cls, "_extension_data")
 
-        assert instance._extensions == frozenset([listener_cls])
+        assert instance._extensions == (listener_cls,)
         assert instance._extension_data == {}
 
     def test_property_returns_correct_value(self, hashlist_cls, additional_properties_cls):
@@ -205,3 +219,21 @@ class TestHashlist:
 
         assert instance._unrelated_number == 2
         assert instance.unrelated_number == 2
+
+    def test_class_names_are_correct(self, hashlist_cls, listener_cls, additional_properties_cls, spare_cls):
+        modified_cls = hashlist_cls.with_extensions(listener_cls, additional_properties_cls)
+
+        class SubClass(modified_cls):
+            pass
+
+        modified_subclass = SubClass.with_extensions(spare_cls)
+
+        modified_cls_2 = hashlist_cls.with_extensions(additional_properties_cls).with_extensions(listener_cls)
+
+        assert modified_cls.__name__ == "HashList.with_extensions(Listener, AdditionalProperties)"
+        assert SubClass.__name__ == "SubClass"
+        assert modified_subclass.__name__ == "SubClass.with_extensions(Spare)"
+        assert modified_cls_2.__name__ == "HashList.with_extensions(AdditionalProperties).with_extensions(Listener)"
+
+    def test_no_extensions_applied_should_return_provided_class(self, hashlist_cls):
+        assert hashlist_cls.with_extensions() == hashlist_cls

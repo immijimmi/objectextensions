@@ -1,20 +1,16 @@
-from typing import Type, FrozenSet
+from typing import Type, Tuple
 from abc import ABC
 
-from .constants import ErrorMessages
 from .extension import Extension
-from .methods import Methods
+from .methods import Methods, Decorators, ErrorMessages
 
 
 class Extendable(ABC):
-    _extensions = frozenset()
+    _extensions = tuple()
 
     def __init__(self):
-        self._extension_data = {}  # Intended to temporarily hold metadata - can be modified by extensions
-
-    @property
-    def extensions(self) -> FrozenSet[Type[Extension]]:
-        return self._extensions
+        # Intended to temporarily hold metadata - can be modified in methods attached by extensions
+        self._extension_data = {}
 
     @property
     def extension_data(self) -> dict:
@@ -26,24 +22,35 @@ class Extendable(ABC):
 
         return Methods.try_copy(self._extension_data)
 
+    @Decorators.classproperty
+    def extensions(cls) -> Tuple[Type[Extension]]:
+        return cls._extensions
+
     @classmethod
     def with_extensions(cls, *extensions: Type[Extension]) -> Type["Extendable"]:
         """
-        Returns the class with the provided extensions applied to it
+        Returns a subclass with the provided extensions applied to it
         """
 
-        class Extended(cls):
-            pass
+        if not extensions:
+            return cls
 
-        Extended._extensions = frozenset(extensions)
+        # Generating a subclass to apply extensions to
+        result = type(
+            f"{cls.__name__}.with_extensions({', '.join(extension_cls.__name__ for extension_cls in extensions)})",
+            (cls,),
+            {}
+        )
 
-        for extension_cls in Extended._extensions:
+        # Applying the provided extensions
+        for extension_cls in extensions:
             if not issubclass(extension_cls, Extension):
                 ErrorMessages.not_extension(extension_cls)
 
             if not extension_cls.can_extend(cls):
                 ErrorMessages.invalid_extension(extension_cls)
 
-            extension_cls.extend(Extended)
+            extension_cls.extend(result)
+            result._extensions = (*result._extensions, extension_cls)
 
-        return Extended
+        return result

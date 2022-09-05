@@ -4,8 +4,7 @@ from inspect import getfullargspec
 from typing import Generator, Callable, Any, Union, Type
 from abc import ABC
 
-from .constants import ErrorMessages
-from .methods import Methods
+from .methods import Methods, ErrorMessages
 
 
 class Extension(ABC):
