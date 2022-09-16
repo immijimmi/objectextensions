@@ -31,19 +31,19 @@ class Decorators:
 class ErrorMessages:
     @staticmethod
     def not_extension(extension):
-        raise TypeError("A provided extension does not inherit the base Extension class: {}".format(extension))
+        raise TypeError(f"a provided extension does not inherit from the `Extension` class: {extension}")
 
     @staticmethod
     def invalid_extension(extension):
-        raise ValueError("A provided extension cannot be used to extend this class: {}".format(extension))
+        raise ValueError(f"a provided extension cannot be used to extend this class: {extension}")
 
     @staticmethod
     def wrap_static(method_name):
         raise ValueError(
-            ("Static class methods cannot be wrapped. "
-             "The method must receive the object instance as 'self' for its first argument: {}").format(method_name))
+            f"static class methods cannot be wrapped; the provided method `{method_name}` "
+            "must have `self` for its first parameter"
+        )
 
     @staticmethod
     def duplicate_attribute(attribute_name):
-        raise AttributeError(
-            "The provided attribute name already exists on the target instance: {}".format(attribute_name))
+        raise AttributeError(f"the provided attribute name already exists on the target instance: {attribute_name}")
