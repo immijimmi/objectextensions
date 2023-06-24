@@ -19,13 +19,13 @@ setup(
     download_url="https://github.com/immijimmi/objectextensions/archive/refs/tags/v2.0.1.tar.gz",
     keywords=["extensions", "plugins"],
     install_requires=[
-        "wrapt~=1.11.2"
+        "wrapt~=1.15.0"
     ],
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Libraries :: Application Frameworks",
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.11",
     ],
 )
