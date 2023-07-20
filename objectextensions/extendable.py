@@ -24,6 +24,10 @@ class Extendable(ABC):
 
     @Decorators.classproperty
     def extensions(cls) -> Tuple[Type[Extension]]:
+        """
+        Returns a tuple of any extensions that have been applied to this class
+        """
+
         return cls._extensions
 
     @classmethod

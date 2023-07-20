@@ -28,10 +28,14 @@ class Extension(ABC):
     def _wrap(target_cls: Type["Extendable"], method_name: str,
               gen_func: Callable[..., Generator[None, Any, None]]) -> None:
         """
-        Used to wrap an existing method on the target class.
-        Passes copies of the method parameters to the generator function provided.
-        The generator function should yield once,
-        with the yield statement receiving a copy of the result of executing the core method
+        Used to wrap an existing method on the target class with surrounding functionality.
+
+        The provided generator function will receive copies of the arguments being passed into the invoked method,
+        and should yield exactly once.
+
+        Any code *before* the yield statement inside this generator function will be executed before the wrapped method,
+        and any code *after* the yield statement will be executed after the wrapped method.
+        The yield statement itself will receive a copy of the value returned by the wrapped method
         """
 
         method = getattr(target_cls, method_name)
@@ -60,10 +64,11 @@ class Extension(ABC):
     def _set(target: Union[Type["Extendable"], "Extendable"], attribute_name: str, value: Any) -> None:
         """
         Used to safely add a new attribute to an extendable class.
-        Note: It is possible but not recommended to modify an instance rather than a class using this method.
 
         Will raise an error if the attribute already exists (for example, if another extension has already added it)
-        to ensure compatibility issues are flagged and can be dealt with easily
+        to ensure compatibility issues are flagged and can be dealt with easily.
+
+        Note: It is possible but not recommended to modify an instance rather than a class using this method
         """
 
         if hasattr(target, attribute_name):
@@ -78,10 +83,11 @@ class Extension(ABC):
     ) -> None:
         """
         Used to safely add a new property to an extendable class.
-        Note: It is possible but not recommended to modify an instance rather than a class using this method.
 
         Will raise an error if the attribute already exists (for example, if another extension has already added it)
-        to ensure compatibility issues are flagged and can be dealt with easily
+        to ensure compatibility issues are flagged and can be dealt with easily.
+
+        Note: It is possible but not recommended to modify an instance rather than a class using this method
         """
 
         Extension._set(target, property_name, value)
@@ -98,12 +104,13 @@ class Extension(ABC):
     ) -> None:
         """
         Used to safely add a new setter to an extendable class.
-        Note: It is possible but not recommended to modify an instance rather than a class using this method.
 
         If the property this setter is paired with does not use the same attribute name,
         and the setter's name already exists on the class (for example, if another extension has already added it),
         an error will be raised.
-        This is to ensure compatibility issues are flagged and can be dealt with easily
+        This is to ensure compatibility issues are flagged and can be dealt with easily.
+
+        Note: It is possible but not recommended to modify an instance rather than a class using this method
         """
 
         if (not setter_name == linked_property_name) and hasattr(target, setter_name):

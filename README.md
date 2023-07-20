@@ -116,71 +116,8 @@ my_hashlist = HashList.with_extensions(Listener)(iterable=[5,2,4])
 4
 ```
 
-## Functionality
-
-### Properties
-
-Extendable.**extensions**  
-&nbsp;&nbsp;&nbsp;&nbsp;Returns a reference to a tuple containing any applied extensions.  
-&nbsp;
-
-Extendable.**extension_data**  
-&nbsp;&nbsp;&nbsp;&nbsp;Returns a snapshot of the instance's extension data.  
-&nbsp;&nbsp;&nbsp;&nbsp;This is intended to hold metadata optionally provided by extensions for the sake of introspection,  
-&nbsp;&nbsp;&nbsp;&nbsp;and for communication between extensions.  
-&nbsp;
-
-### Methods
-
-Extendable.**with_extensions**(*cls, \*extensions: Type[Extension]*)  
-&nbsp;&nbsp;&nbsp;&nbsp;Returns a subclass with the provided extensions applied to it.  
-&nbsp;
-
-Extension.**can_extend**(*target_cls: Type[Extendable]*)  
-&nbsp;&nbsp;&nbsp;&nbsp;Abstract staticmethod which must be overridden.  
-&nbsp;&nbsp;&nbsp;&nbsp;Should return a bool indicating whether this Extension can be applied to the target class.  
-&nbsp;
-
-Extension.**extend**(*target_cls: Type[Extendable]*)  
-&nbsp;&nbsp;&nbsp;&nbsp;Abstract staticmethod which must be overridden.  
-&nbsp;&nbsp;&nbsp;&nbsp;Any modification of the target class should take place in this function.  
-&nbsp;
-
-Extension.**\_wrap**(*target_cls: Type[Extendable], method_name: str,*  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*gen_func: Callable[..., Generator[None, Any, None]]*)  
-&nbsp;&nbsp;&nbsp;&nbsp;Used to wrap an existing method on the target class.  
-&nbsp;&nbsp;&nbsp;&nbsp;Passes copies of the method parameters to the generator function provided.  
-&nbsp;&nbsp;&nbsp;&nbsp;The generator function should yield once,  
-&nbsp;&nbsp;&nbsp;&nbsp;with the yield statement receiving a copy of the result of executing the core method.  
-&nbsp;
-
-Extension.**\_set**(*target: Union[Type[Extendable], Extendable], attribute_name: str, value: Any*)  
-&nbsp;&nbsp;&nbsp;&nbsp;Used to safely add a new attribute to an extendable class.  
-
-*Note: It is possible but not recommended to modify an instance rather than a class using this method.*  
-&nbsp;&nbsp;&nbsp;&nbsp;*Will raise an error if the attribute already exists (for example, if another extension has already added it)*  
-&nbsp;&nbsp;&nbsp;&nbsp;*to ensure compatibility issues are flagged and can be dealt with easily.*  
-&nbsp;
-
-Extension.**\_set_property**(*target: Union[Type[Extendable], Extendable], property_name: str, value: Callable[[Extendable], Any]*)  
-&nbsp;&nbsp;&nbsp;&nbsp;Used to safely add a new property to an extendable class.  
-
-*Note: It is possible but not recommended to modify an instance rather than a class using this method.*  
-&nbsp;&nbsp;&nbsp;&nbsp;*Will raise an error if the attribute already exists (for example, if another extension has already added it)*  
-&nbsp;&nbsp;&nbsp;&nbsp;*to ensure compatibility issues are flagged and can be dealt with easily.*  
-&nbsp;
-
-Extension.**\_set_setter**(*target: Union[Type[Extendable], Extendable], setter_name: str, linked_property_name: str,*  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*value: Callable[[Extendable, Any], Any]*)  
-&nbsp;&nbsp;&nbsp;&nbsp;Used to safely add a new setter to an extendable class.  
-
-*Note: It is possible but not recommended to modify an instance rather than a class using this method.*  
-&nbsp;&nbsp;&nbsp;&nbsp;*If the property this setter is paired with does not use the same attribute name,*  
-&nbsp;&nbsp;&nbsp;&nbsp;*and the setter's name already exists on the class (for example, if another extension has already added it),*  
-&nbsp;&nbsp;&nbsp;&nbsp;*an error will be raised. This is to ensure compatibility issues are flagged and can be dealt with easily.*  
-&nbsp;
-
 ## Additional Info
 
-- As extensions do not properly invoke name mangling, adding private members via extensions is discouraged; doing so may lead to unintended behaviour.
-Using protected members instead is encouraged, as name mangling does not come into play in this case.
+- As extensions do not currently invoke name mangling, adding private members (names which begin with double underscores)
+to Extendable classes via extensions is discouraged; doing so may lead to unintended behaviour.
+Using protected members (names with a single leading underscore) instead is encouraged, as name mangling does not come into play in this case.
