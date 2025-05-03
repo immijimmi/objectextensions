@@ -13,7 +13,7 @@ Applying standard OOP here means you would need to make a subclass every time a 
 In the above case, you may need one subclass for a car with a convertible roof, one subclass for a car with a touchscreen, and one that has both features. As the amount of optional features increases,
 the amount of possible combinations skyrockets. This is not a scalable solution to the problem.
 
-Object Extensions is an elegant way to handle scenarios such as this one. Rather than creating a new subclass for each possible combination,
+**objectextensions** provides an elegant way to handle scenarios such as this one. Rather than creating a new subclass for each possible combination,
 you create one extension representing each feature. When you need to create an instance of a car with a particular set of features,
 take the parent class and pass it the exact set of extensions you want to apply via the `.with_extensions()` method.
 
