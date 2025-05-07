@@ -8,7 +8,7 @@ setup(
     packages=[
         "objectextensions"
     ],
-    version="2.0.3",
+    version="3.0.0",
     license="MIT",
     description="A basic framework for implementing an extension pattern",
     long_description_content_type="text/markdown",
@@ -16,7 +16,7 @@ setup(
     author="immijimmi",
     author_email="immijimmi1@gmail.com",
     url="https://github.com/immijimmi/objectextensions",
-    download_url="https://github.com/immijimmi/objectextensions/archive/refs/tags/v2.0.3.tar.gz",
+    download_url="https://github.com/immijimmi/objectextensions/archive/refs/tags/v3.0.0.tar.gz",
     keywords=["extensions", "plugins"],
     install_requires=[
         "wrapt~=1.15.0"
