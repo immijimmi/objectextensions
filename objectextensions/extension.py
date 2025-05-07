@@ -1,10 +1,10 @@
 from wrapt import decorator
 
 from inspect import getfullargspec
-from typing import Generator, Callable, Any, Union, Type
+from typing import Generator, Callable, Any, Optional, Type
 from abc import ABC
 
-from .methods import Methods, ErrorMessages
+from .methods import Methods
 
 
 class Extension(ABC):
@@ -25,28 +25,114 @@ class Extension(ABC):
         raise NotImplementedError
 
     @staticmethod
-    def _wrap(target_cls: Type["Extendable"], method_name: str,
-              gen_func: Callable[..., Generator[None, Any, None]]) -> None:
+    def _wrap(
+            target_cls: Type["Extendable"], method_name: str,
+            wrapper: Callable[..., Generator[None, Any, None]]
+    ) -> None:
         """
-        Used to wrap an existing method on the target class with surrounding functionality.
+        Used to wrap an existing method on the target class with surrounding functionality. The provided wrapper
+        should be a generator function.
 
-        The provided generator function will receive copies of the arguments being passed into the invoked method,
+        The wrapper will receive copies of the arguments being passed into the invoked method,
         and should yield exactly once.
 
-        Any code *before* the yield statement inside this generator function will be executed before the wrapped method,
+        Any code *before* the yield statement will be executed before the wrapped method,
         and any code *after* the yield statement will be executed after the wrapped method.
+
         The yield statement itself will receive a copy of the value returned by the wrapped method
         """
 
-        method = getattr(target_cls, method_name)
-        method_args = getfullargspec(method).args
+        target_method = getattr(target_cls, method_name)
 
+        setattr(target_cls, method_name, Extension.__create_wrapped_method(target_method, wrapper))
+
+    @staticmethod
+    def _wrap_property(
+            target_cls: Type["Extendable"], property_name: str,
+            getter_wrapper: Optional[Callable[..., Generator[None, Any, None]]] = None,
+            setter_wrapper: Optional[Callable[..., Generator[None, Any, None]]] = None,
+            deleter_wrapper: Optional[Callable[..., Generator[None, Any, None]]] = None,
+    ) -> None:
+        """
+        Used to wrap any combination of the getter, setter and deleter methods of a property on the target class with
+        surrounding functionality
+        """
+
+        target_prop = getattr(target_cls, property_name)
+        target_prop_methods = [target_prop.fget, target_prop.fset, target_prop.fdel]
+        target_prop_docstring = target_prop.__doc__
+
+        for wrapper_index, wrapper in enumerate((getter_wrapper, setter_wrapper, deleter_wrapper)):
+            method = target_prop_methods[wrapper_index]
+
+            if wrapper is not None:
+                if method is None:
+                    raise AttributeError(
+                        f"property `{property_name}` does not have a"
+                        f" {("getter", "setter", "deleter")[wrapper_index]} method to be wrapped"
+                    )
+
+                target_prop_methods[wrapper_index] = Extension.__create_wrapped_method(method, wrapper)
+
+        setattr(
+            target_cls, property_name,
+            property(
+                fget=target_prop_methods[0],
+                fset=target_prop_methods[1],
+                fdel=target_prop_methods[2],
+                doc=target_prop_docstring)
+        )
+
+    @staticmethod
+    def _set(target_cls: Type["Extendable"], attribute_name: str, value: Any) -> None:
+        """
+        Used to safely add a new attribute to an extendable class.
+
+        Will raise an error if the attribute already exists (for example, if another extension has already added it)
+        to ensure compatibility issues are flagged and can be dealt with easily
+        """
+
+        if hasattr(target_cls, attribute_name):
+            raise AttributeError(f"attribute `{attribute_name}` already exists on the target class")
+
+        setattr(target_cls, attribute_name, value)
+
+    @staticmethod
+    def _set_property(
+            target_cls: Type["Extendable"], property_name: str,
+            getter: Optional[Callable[["Extendable"], Any]] = None,
+            setter: Optional[Callable[["Extendable", Any], None]] = None,
+            deleter: Optional[Callable[["Extendable"], None]] = None,
+            docstring: Optional[str] = None
+    ) -> None:
+        """
+        Used to safely add a new property to an extendable class. Any combination of getter, setter and
+        deleter may be provided, along with a docstring for the property.
+
+        Will raise an error if the attribute already exists (for example, if another extension has already added it)
+        to ensure compatibility issues are flagged and can be dealt with easily
+        """
+
+        if hasattr(target_cls, property_name):
+            raise AttributeError(f"attribute `{property_name}` already exists on the target class")
+
+        setattr(
+            target_cls, property_name,
+            property(fget=getter, fset=setter, fdel=deleter, doc=docstring)
+        )
+
+    @staticmethod
+    def __create_wrapped_method(method, wrapper_gen_func):
+        method_args = getfullargspec(method).args
         if len(method_args) == 0 or method_args[0] != "self":
-            ErrorMessages.wrap_static(method_name)
+            raise ValueError(
+                f"static or class methods cannot be wrapped;"
+                " the provided method must have `self` for its first parameter"
+            )
 
         @decorator  # This will preserve the original method signature when wrapping the method
         def wrapper(func, self, args, kwargs):
-            gen = gen_func(self, *Methods.try_copy(args), **Methods.try_copy(kwargs))
+            gen = wrapper_gen_func(self, *Methods.try_copy(args), **Methods.try_copy(kwargs))
             next(gen)
 
             result = func(*args, **kwargs)
@@ -58,65 +144,4 @@ class Extension(ABC):
 
             return result
 
-        setattr(target_cls, method_name, wrapper(method))
-
-    @staticmethod
-    def _set(target: Union[Type["Extendable"], "Extendable"], attribute_name: str, value: Any) -> None:
-        """
-        Used to safely add a new attribute to an extendable class.
-
-        Will raise an error if the attribute already exists (for example, if another extension has already added it)
-        to ensure compatibility issues are flagged and can be dealt with easily.
-
-        Note: It is possible but not recommended to modify an instance rather than a class using this method
-        """
-
-        if hasattr(target, attribute_name):
-            ErrorMessages.duplicate_attribute(attribute_name)
-
-        setattr(target, attribute_name, value)
-
-    @staticmethod
-    def _set_property(
-            target: Union[Type["Extendable"], "Extendable"], property_name: str,
-            value: Callable[["Extendable"], Any]
-    ) -> None:
-        """
-        Used to safely add a new property to an extendable class.
-
-        Will raise an error if the attribute already exists (for example, if another extension has already added it)
-        to ensure compatibility issues are flagged and can be dealt with easily.
-
-        Note: It is possible but not recommended to modify an instance rather than a class using this method
-        """
-
-        Extension._set(target, property_name, value)
-
-        setattr(
-            target, property_name,
-            property(getattr(target, property_name))
-        )
-
-    @staticmethod
-    def _set_setter(
-            target: Union[Type["Extendable"], "Extendable"], setter_name: str, linked_property_name: str,
-            value: Callable[["Extendable", Any], Any]
-    ) -> None:
-        """
-        Used to safely add a new setter to an extendable class.
-
-        If the property this setter is paired with does not use the same attribute name,
-        and the setter's name already exists on the class (for example, if another extension has already added it),
-        an error will be raised.
-        This is to ensure compatibility issues are flagged and can be dealt with easily.
-
-        Note: It is possible but not recommended to modify an instance rather than a class using this method
-        """
-
-        if (not setter_name == linked_property_name) and hasattr(target, setter_name):
-            ErrorMessages.duplicate_attribute(setter_name)
-
-        setattr(
-            target, setter_name,
-            getattr(target, linked_property_name).setter(value)
-        )
+        return wrapper(method)

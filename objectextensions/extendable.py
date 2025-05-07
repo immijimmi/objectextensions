@@ -2,7 +2,7 @@ from typing import Type, Tuple
 from abc import ABC
 
 from .extension import Extension
-from .methods import Methods, Decorators, ErrorMessages
+from .methods import Methods, Decorators
 
 
 class Extendable(ABC):
@@ -49,10 +49,10 @@ class Extendable(ABC):
         # Applying the provided extensions
         for extension_cls in extensions:
             if not issubclass(extension_cls, Extension):
-                ErrorMessages.not_extension(extension_cls)
+                raise TypeError(f"a provided extension does not inherit from the `Extension` class: {extension_cls}")
 
             if not extension_cls.can_extend(cls):
-                ErrorMessages.invalid_extension(extension_cls)
+                raise ValueError(f"a provided extension cannot be used to extend this class: {extension_cls}")
 
             extension_cls.extend(result)
             result._extensions = (*result._extensions, extension_cls)

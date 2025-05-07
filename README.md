@@ -119,5 +119,5 @@ my_hashlist = HashList.with_extensions(Listener)(iterable=[5,2,4])
 ## Additional Info
 
 - As extensions do not currently invoke name mangling, adding private members (names which begin with double underscores)
-to Extendable classes via extensions is discouraged; doing so may lead to unintended behaviour.
+to Extendable classes via extensions is not recommended; doing so may lead to unintended behaviour.
 Using protected members (names with a single leading underscore) instead is encouraged, as name mangling does not come into play in this case.

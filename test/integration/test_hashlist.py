@@ -72,10 +72,10 @@ def additional_properties_cls(hashlist_cls):
 
         @staticmethod
         def extend(target_cls):
-            Extension._set_property(target_cls, "unrelated_number", AdditionalProperties.__unrelated_number)
-            Extension._set_setter(
-                target_cls, "unrelated_number", "unrelated_number",
-                AdditionalProperties.__set_unrelated_number
+            Extension._set_property(
+                target_cls, "unrelated_number",
+                getter=AdditionalProperties.__unrelated_number,
+                setter=AdditionalProperties.__set_unrelated_number
             )
 
             Extension._wrap(target_cls, "__init__", AdditionalProperties.__wrap_init)
